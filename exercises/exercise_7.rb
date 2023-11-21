@@ -26,12 +26,31 @@ puts "----------"
 4. Display the error messages provided back from ActiveRecord to the user (one on each line) after you attempt to save/create the record
 =end
 
-Employee.validates(:first_name, :last_name, presence: true)
-Employee.validates(:hourly_rate, numericality: { only_integer: true, greater_than_or_equal_to: 40, less_than_or_equal_to: 200 })
-Employee.validates_associated(:store)
+# Employee.validates(:first_name, :last_name, presence: true)
+# Employee.validates(:hourly_rate, numericality: { only_integer: true, greater_than_or_equal_to: 40, less_than_or_equal_to: 200 })
+# Employee.validates_associated(:store)
 
-Store.validates(:name, length: { minimum: 3 })
-Store.validates(:annual_revenue, numericality: { only_integer: true, greater_than_or_equal_to: 0 })
+# Store.validates(:name, length: { minimum: 3 })
+# Store.validates(:annual_revenue, numericality: { only_integer: true, greater_than_or_equal_to: 0 })
+
+# ABOVE REFACTORED, AND WITH BONUS IMPLEMENTATION:
+class Employee < ActiveRecord::Base
+  validates :first_name, :last_name, presence: true
+  validates :hourly_rate, numericality: { only_integer: true, greater_than_or_equal_to: 40, less_than_or_equal_to: 200 }
+  validates_associated :store
+end
+
+class Store < ActiveRecord::Base
+  validates :name, length: { minimum: 3 }
+  validates :annual_revenue, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validate :must_carry_apparel, on: :create
+
+  def must_carry_apparel
+    if !mens_apparel && !womens_apparel
+      errors.add(:base, "Store must carry at least one of men's or women's apparel")
+    end
+  end
+end
 
 puts "Enter a store name here: "
 store_name = gets.chomp
